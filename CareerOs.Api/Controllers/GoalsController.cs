@@ -43,4 +43,25 @@ public class GoalsController : ControllerBase
 
         return Ok(goal);
     }
+
+    [HttpPost]
+    public ActionResult<Goal> CreateGoal([FromBody] Goal newGoal)
+    {
+        if (string.IsNullOrWhiteSpace(newGoal.Title))
+        {
+            return BadRequest("Title is required.");
+        }
+
+        newGoal.Id = Goals.Count == 0 ? 1 : Goals.Max(g => g.Id) + 1;
+
+        newGoal.IsCompleted = false;
+
+        Goals.Add(newGoal);
+
+        return CreatedAtAction(
+            nameof(GetGoal),
+            new { id = newGoal.Id },
+            newGoal
+        );
+    }
 }

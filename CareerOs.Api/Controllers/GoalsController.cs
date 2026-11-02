@@ -64,4 +64,26 @@ public class GoalsController : ControllerBase
             newGoal
         );
     }
+
+    [HttpPut("{id:int}")]
+    public IActionResult UpdateGoal(int id, [FromBody] Goal updatedGoal)
+    {
+        Goal? goal = Goals.FirstOrDefault(g => g.Id == id);
+
+        if (goal == null)
+        {
+            return NotFound();
+        }
+
+        if (string.IsNullOrWhiteSpace(updatedGoal.Title))
+        {
+            return BadRequest("Title is required.");
+        }
+
+        goal.Title = updatedGoal.Title;
+        goal.Description = updatedGoal.Description;
+        goal.IsCompleted = updatedGoal.IsCompleted;
+
+        return NoContent();
+    }
 }

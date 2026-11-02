@@ -30,4 +30,17 @@ public class GoalsController : ControllerBase
     {
         return Ok(Goals);
     }
+
+    [HttpGet("{id:int}")]
+    public ActionResult<Goal> GetGoal(int id)
+    {
+        Goal? goal = Goals.FirstOrDefault(g => g.Id == id);
+
+        if (goal == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(goal);
+    }
 }

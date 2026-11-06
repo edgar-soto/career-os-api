@@ -86,4 +86,18 @@ public class GoalsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{id:int}")]
+    public IActionResult DeleteGoal(int id)
+    {
+        Goal? goal = Goals.FirstOrDefault(g => g.Id == id);
+
+        if (goal == null)
+        {
+            return NotFound();
+        }
+
+        Goals.Remove(goal);
+        return NoContent();
+    }
 }

@@ -2,6 +2,7 @@ using CareerOs.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using CareerOs.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using CareerOs.Api.DTOs;
 
 namespace CareerOs.Api.Controllers;
 
@@ -37,15 +38,14 @@ public class GoalsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Goal>> CreateGoal([FromBody] Goal newGoal)
+    public async Task<ActionResult<Goal>> CreateGoal([FromBody] CreateGoalRequest request)
     {
-        if (string.IsNullOrWhiteSpace(newGoal.Title))
+        Goal newGoal = new Goal
         {
-            return BadRequest("Title is required.");
-        }
-
-        newGoal.Id = 0;
-        newGoal.IsCompleted = false;
+            Title = request.Title,
+            Description = request.Description ?? string.Empty,
+            IsCompleted = false
+        };
 
         _db.Goals.Add(newGoal);
         await _db.SaveChangesAsync();
@@ -58,7 +58,7 @@ public class GoalsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateGoal(int id, [FromBody] Goal updatedGoal)
+    public async Task<IActionResult> UpdateGoal(int id, [FromBody] UpdateGoalRequest request)
     {
         Goal? goal = await _db.Goals.FindAsync(id);
 
@@ -67,15 +67,17 @@ public class GoalsController : ControllerBase
             return NotFound();
         }
 
-        if (string.IsNullOrWhiteSpace(updatedGoal.Title))
+        if (request.IsCompleted is bool isCompleted)
         {
-            return BadRequest("Title is required.");
+            goal.Title = request.Title;
+            goal.Description = request.Description ?? string.Empty;
+            goal.IsCompleted = isCompleted;
         }
-
-        goal.Title = updatedGoal.Title;
-        goal.Description = updatedGoal.Description;
-        goal.IsCompleted = updatedGoal.IsCompleted;
-
+        else
+        {
+            return BadRequest("Completion status is required.");
+        }
+        
         await _db.SaveChangesAsync();
 
         return NoContent();
